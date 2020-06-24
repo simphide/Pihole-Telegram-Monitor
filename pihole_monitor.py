@@ -57,9 +57,9 @@ def telegram_bot_send_text(message: str, targets: list):
     print_message(message)
     for chat_id in TELEGRAM_CHAT_IDS:
         if chat_id in targets:
-            send_text = 'https://api.telegram.org/bot' + TELEGRAM_API_KEY \
-                        + '/sendMessage?chat_id=' + TELEGRAM_CHAT_IDS[chat_id] \
-                        + '&text=' + message
+            send_text = "https://api.telegram.org/bot" + TELEGRAM_API_KEY \
+                        + "/sendMessage?chat_id=" + TELEGRAM_CHAT_IDS[chat_id] \
+                        + "&text=" + message
             try:
                 requests.get(send_text, timeout=REQUEST_TIMEOUT)
             except requests.exceptions.RequestException as e:
