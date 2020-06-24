@@ -24,14 +24,14 @@ def telegram_bot_send_text(bot_message):
     """
     Send telegram message
     :param bot_message: message to send all chats
-    :return: requests json object
+    :return: nothing
     """
     for chat_id in TELEGRAM_CHAT_IDS:
         send_text = 'https://api.telegram.org/bot' + TELEGRAM_API_KEY \
                     + '/sendMessage?chat_id=' + chat_id \
                     + '&text=' + bot_message
         print(bot_message)
-        return requests.get(send_text).json()
+        requests.get(send_text)
 
 
 while True:
