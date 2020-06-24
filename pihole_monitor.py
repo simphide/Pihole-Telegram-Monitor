@@ -1,24 +1,24 @@
 import requests
 import time
+from datetime import datetime
 
+# Sleep time when starting script
+INITIAL_SLEEP_TIME = 30
 # Time to sleep between checks
 SLEEP_TIME = 10
 # Timeout in seconds
 REQUESTS_TIMEOUT = 3
 
-
 # Telegram Bot API-Key
 TELEGRAM_API_KEY = ""
-
 # Chat-IDs of the users that will be informed
 TELEGRAM_CHAT_IDS = [
-    "XXXXXXXX"
+    "XXXXX"
 ]
-
 
 # List of Pi-holes to check
 PI_HOLE_ADDRESSES = {
-    "192.168.178.XXXX": True
+    "XXX.XXX.XXX.XXX": True,
 }
 
 
@@ -49,6 +49,7 @@ def print_message(message):
           + message)
 
 
+time.sleep(INITIAL_SLEEP_TIME)
 while True:
     for device in PI_HOLE_ADDRESSES:
         answer = ""
