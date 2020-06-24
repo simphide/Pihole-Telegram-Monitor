@@ -5,12 +5,12 @@ from datetime import datetime
 
 class PiHole:
     """
-    Saves a Pi-hole object with the folowwing attributes:
-    IP-Address
-    Name
-    Users to inform
-    If Pi-hole is online
-    If the status is getting double checked
+    Saves a Pi-hole object with the following attributes:
+    -IP-Address
+    -Name
+    -Users to inform
+    -If Pi-hole is online
+    -If the status is getting double checked
     """
 
     def __init__(self, ip: str, name: str, users: list):
