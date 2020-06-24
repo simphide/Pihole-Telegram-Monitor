@@ -3,6 +3,8 @@ import time
 
 # Time to sleep between checks
 SLEEP_TIME = 10
+# Timeout in seconds
+REQUESTS_TIMEOUT = 3
 
 
 # Telegram Bot API-Key
