@@ -59,4 +59,6 @@ while True:
             elif PI_HOLE_ADDRESSES[device]:
                 telegram_bot_send_text("[" + device + "] Unknown error occurred: " + answer.json())
                 PI_HOLE_ADDRESSES[device] = False
+        except AttributeError:
+            pass
     time.sleep(SLEEP_TIME)
