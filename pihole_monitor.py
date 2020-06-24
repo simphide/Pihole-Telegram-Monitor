@@ -39,7 +39,7 @@ while True:
         answer = ""
         try:
             answer = requests.get("http://" + device + "/admin/api.php")
-        except requests.exceptions.ConnectionError:
+        except requests.exceptions.RequestException:
             if PI_HOLE_ADDRESSES[device]:
                 telegram_bot_send_text("[" + device + "] Pi-hole seems to be offline!")
                 PI_HOLE_ADDRESSES[device] = False
