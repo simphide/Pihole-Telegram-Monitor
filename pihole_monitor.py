@@ -31,14 +31,17 @@ def telegram_bot_send_text(bot_message):
         send_text = 'https://api.telegram.org/bot' + TELEGRAM_API_KEY \
                     + '/sendMessage?chat_id=' + chat_id \
                     + '&text=' + bot_message
-        requests.get(send_text)
+        try:
+            requests.get(send_text, timeout=REQUESTS_TIMEOUT)
+        except requests.exceptions.RequestException as e:
+            print("Exception raised while sending telegram message: ", e)
 
 
 while True:
     for device in PI_HOLE_ADDRESSES:
         answer = ""
         try:
-            answer = requests.get("http://" + device + "/admin/api.php")
+            answer = requests.get("http://" + device + "/admin/api.php", timeout=REQUESTS_TIMEOUT)
         except requests.exceptions.RequestException:
             if PI_HOLE_ADDRESSES[device]:
                 telegram_bot_send_text("[" + device + "] Pi-hole seems to be offline!")
