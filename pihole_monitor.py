@@ -82,43 +82,48 @@ while True:
         answer = ""
         try:
             answer = requests.get("http://" + device.ip + "/admin/api.php", timeout=REQUEST_TIMEOUT)
-        except requests.exceptions.RequestException:
-            if device.online:
+        except requests.exceptions.RequestException:  # problem accessing the device
+            if device.online:  # if it was online before
                 if device.double_check:
+                    device.online = False
                     device.double_check = False
                     telegram_bot_send_text(device.name + ": Device seems to be offline!", device.users)
-                    device.online = False
                     continue
                 else:
                     device.double_check = True
                     continue
 
         try:
-            if answer.json()["status"] == "enabled" and not device.online:
-                telegram_bot_send_text(device.name + ": Device is online again!", device.users)
+            if answer.json()["status"] == "enabled" and not device.online:  # device is back online
                 device.online = True
-            elif answer.json()["status"] == "disabled" and device.online:
+                telegram_bot_send_text(device.name + ": Device is online again!", device.users)
+            elif answer.json()["status"] == "disabled" and device.online:  # adblocking is disabled
                 if device.double_check:
-                    device.double_check = False
+                    device.online = False
                     telegram_bot_send_text(device.name + ": Ad-blocking function is disabled!", device.users)
-                    device.online = False
                 else:
                     device.double_check = True
+                    continue
         except KeyError:
-            if answer.json()["FTLnotrunning"] and device.online:
+            if answer.json()["FTLnotrunning"] and device.online:  # FTL is not running
                 if device.double_check:
-                    device.double_check = False
+                    device.online = False
                     telegram_bot_send_text(device.name + ": FTL is not running anymore!", device.users)
-                    device.online = False
                 else:
                     device.double_check = True
-            elif device.online:
+                    continue
+            elif device.online:  # unknown error occurred
                 if device.double_check:
-                    device.double_check = False
-                    telegram_bot_send_text(device.name + ": Unknown error occurred - " + answer.json(), device.users)
                     device.online = False
+                    telegram_bot_send_text(device.name + ": Unknown error occurred - " + answer.json(), device.users)
                 else:
                     device.double_check = True
-        except AttributeError:
+                    continue
+        except AttributeError:  # sometimes triggered, when answer is empty
             pass
+
+        # if the code reaches this line and the double check flag is set, we can unset is since nothing got triggered
+        if device.double_check:
+            device.double_check = False
+            
     time.sleep(REQUEST_INTERVAL)
