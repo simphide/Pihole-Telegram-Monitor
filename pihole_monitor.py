@@ -63,11 +63,11 @@ class PiHole:
         self.request_timeout = request_timeout
         self.retry_time = retry_time
 
-    def is_alive(self) -> int:
+    def get_status(self) -> int:
         """
         Returns status code as an integer
-        0 - if nothing happend
-        1 - Pi-hole is alive again
+        0 - status hasn't changed
+        1 - Pi-hole is alive
         2 - Pi-hole is down
         3 - Ad-blocking function is deactivated
         4 - FTL is not running anymore
@@ -86,7 +86,7 @@ class PiHole:
                 else:
                     self.retry_number += 1
                     time.sleep(self.retry_time)
-                    return self.is_alive()
+                    return self.get_status()
 
         try:
             if r.json()["status"] == "enabled" and not self.online:  # device is back online
@@ -101,7 +101,7 @@ class PiHole:
                 else:
                     self.retry_number += 1
                     time.sleep(self.retry_time)
-                    return self.is_alive()
+                    return self.get_status()
         except KeyError:
             if r.json()["FTLnotrunning"] and self.online:  # FTL is not running
                 if self.retry_number >= self.max_retries:
@@ -111,7 +111,7 @@ class PiHole:
                 else:
                     self.retry_number += 1
                     time.sleep(self.retry_time)
-                    return self.is_alive()
+                    return self.get_status()
             elif self.online:  # unknown error occurred
                 if self.retry_number >= self.max_retries:
                     self.online = False
@@ -120,7 +120,7 @@ class PiHole:
                 else:
                     self.retry_number += 1
                     time.sleep(self.retry_time)
-                    return self.is_alive()
+                    return self.get_status()
         except AttributeError:  # sometimes triggered, when answer is empty
             pass
         return 0
@@ -146,7 +146,7 @@ PI_HOLES = [
 time.sleep(INITIAL_SLEEP_TIME)
 while True:
     for device in PI_HOLES:
-        status_code = device.is_alive()
+        status_code = device.get_status()
         if status_code == 1:
             telegram_bot_send_text(device.name + ": Device is online again!", device.users)
         elif status_code == 2:
