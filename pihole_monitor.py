@@ -35,12 +35,7 @@ def print_message(message: str):
 
 class PiHole:
     """
-    Saves a Pi-hole object with the following attributes:
-    -IP-Address
-    -Name
-    -Users to inform
-    -If Pi-hole is online
-    -If the status is getting double checked
+    A Pi-hole object containing the IP-address, pretty name and other relevant information.
     """
 
     def __init__(self, ip: str, name: str, users: list, max_retries: int = 1, request_timeout: int = 3,
