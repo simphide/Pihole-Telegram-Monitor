@@ -79,7 +79,7 @@ class PiHole:
         
         r = ""
         try:
-            r = requests.get("http://" + device.ip + "/admin/api.php", timeout=self.request_timeout)
+            r = requests.get("http://" + self.ip + "/admin/api.php", timeout=self.request_timeout)
         except requests.exceptions.RequestException:  # problem accessing the device
             if self.online:  # if it was online before
                 if self.retry_number >= self.max_retries:
