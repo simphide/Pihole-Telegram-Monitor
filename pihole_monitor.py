@@ -58,17 +58,25 @@ class PiHole:
         self.request_timeout = request_timeout
         self.retry_time = retry_time
 
-    def get_status(self) -> int:
+    def get_status(self) -> int::
         """
         Returns status code as an integer
-        0 - status hasn't changed
-        1 - Pi-hole is alive
-        2 - Pi-hole is down
-        3 - Ad-blocking function is deactivated
-        4 - FTL is not running anymore
-        5 - unknown error occurred
+        -1 - no internet connection available
+        0  - status hasn't changed
+        1  - Pi-hole is alive
+        2  - Pi-hole is down
+        3  - Ad-blocking function is deactivated
+        4  - FTL is not running anymore
+        5  - unknown error occurred
         :return: integer between 0-5
         """
+        try:  # test if internet is available
+            requests.get("https://1.1.1.1/", timeout=self.request_timeout)
+        except requests.exceptions.RequestException:
+            self.retry_number = 0
+            print_message("ERROR: No internet connection available...")
+            return -1
+        
         r = ""
         try:
             r = requests.get("http://" + device.ip + "/admin/api.php", timeout=self.request_timeout)
