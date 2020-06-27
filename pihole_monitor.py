@@ -1,6 +1,7 @@
-import requests
 import time
 from datetime import datetime
+import requests
+from pihole import PiHole
 
 
 def telegram_bot_send_text(message: str, targets: list, request_timeout: int = 3):
@@ -33,104 +34,8 @@ def print_message(message: str):
           + message)
 
 
-class PiHole:
-    """
-    A Pi-hole object containing the IP-address, pretty name and other relevant information.
-    """
-
-    def __init__(self, ip: str, name: str, users: list, max_retries: int = 1, request_timeout: int = 3,
-                 retry_time: int = 15):
-        """
-        Initialize Pi-hole object
-        :param ip: IP of the Pi-hole
-        :param name: Pretty name of the Pi-hole
-        :param users: Users to inform
-        :param max_retries: number of retries before a status code is returned
-        :param request_timeout: time until a request times out
-        :param retry_time: time to wait between approaches to access the Pi-hole
-        """
-        self.ip = ip
-        self.online = True
-        self.name = name
-        self.users = users
-        self.retry_number = 0
-        self.max_retries = max_retries
-        self.request_timeout = request_timeout
-        self.retry_time = retry_time
-
-    def get_status(self) -> int::
-        """
-        Returns status code as an integer
-        -1 - no internet connection available
-        0  - status hasn't changed
-        1  - Pi-hole is alive
-        2  - Pi-hole is down
-        3  - Ad-blocking function is deactivated
-        4  - FTL is not running anymore
-        5  - unknown error occurred
-        :return: integer between 0-5
-        """
-        try:  # test if internet is available
-            requests.get("https://1.1.1.1/", timeout=self.request_timeout)
-        except requests.exceptions.RequestException:
-            self.retry_number = 0
-            print_message("ERROR: No internet connection available...")
-            return -1
-        
-        r = ""
-        try:
-            r = requests.get("http://" + self.ip + "/admin/api.php", timeout=self.request_timeout)
-        except requests.exceptions.RequestException:  # problem accessing the device
-            if self.online:  # if it was online before
-                if self.retry_number >= self.max_retries:
-                    self.online = False
-                    self.retry_number = 0
-                    return 2
-                else:
-                    self.retry_number += 1
-                    time.sleep(self.retry_time)
-                    return self.get_status()
-
-        try:
-            if r.json()["status"] == "enabled" and not self.online:  # device is back online
-                self.online = True
-                self.retry_number = 0
-                return 1
-            elif r.json()["status"] == "disabled" and self.online:  # ad-blocking is disabled
-                if self.retry_number >= self.max_retries:
-                    self.online = False
-                    self.retry_number = 0
-                    return 3
-                else:
-                    self.retry_number += 1
-                    time.sleep(self.retry_time)
-                    return self.get_status()
-        except KeyError:
-            if r.json()["FTLnotrunning"] and self.online:  # FTL is not running
-                if self.retry_number >= self.max_retries:
-                    self.online = False
-                    self.retry_number = 0
-                    return 4
-                else:
-                    self.retry_number += 1
-                    time.sleep(self.retry_time)
-                    return self.get_status()
-            elif self.online:  # unknown error occurred
-                if self.retry_number >= self.max_retries:
-                    self.online = False
-                    self.retry_number = 0
-                    return 5
-                else:
-                    self.retry_number += 1
-                    time.sleep(self.retry_time)
-                    return self.get_status()
-        except AttributeError:  # sometimes triggered, when answer is empty
-            pass
-        return 0
-
-
 # Sleep time when starting script
-INITIAL_SLEEP_TIME = 60
+INITIAL_SLEEP_TIME = 0
 # Time to sleep between checks
 REQUEST_INTERVAL = 60
 
@@ -161,3 +66,4 @@ while True:
         elif status_code == 5:
             telegram_bot_send_text(device.name + ": Unknown error occurred...", device.users)
     time.sleep(REQUEST_INTERVAL)
+
