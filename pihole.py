@@ -44,7 +44,7 @@ class PiHole:
         3  - Ad-blocking function is deactivated
         4  - FTL is not running anymore
         5  - unknown error occurred
-        :return: integer between 0-5
+        :return: integer between 0-5; -1 when no internet is available
         """
         try:  # test if internet is available
             requests.get(self.connection_check_server, timeout=self.request_timeout, verify=self.connection_secure)
