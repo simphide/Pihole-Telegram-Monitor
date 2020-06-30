@@ -50,7 +50,6 @@ class PiHole:
             requests.get(self.connection_check_server, timeout=self.request_timeout, verify=self.connection_secure)
         except requests.exceptions.RequestException:
             self.retry_number = 0
-            print("ERROR: No internet connection available...")
             return -1
 
         r = ""
