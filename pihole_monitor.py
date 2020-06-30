@@ -52,9 +52,18 @@ PI_HOLES = [
 ]
 
 time.sleep(INITIAL_SLEEP_TIME)
+offline = False
 while True:
     for device in PI_HOLES:
         status_code = device.get_status()
+        if status_code == -1 and offline is False:
+            offline = True
+            print_message("Unable to check Pi-holes. No internet connection available.")
+            continue
+        elif status_code != -1 and offline is True:
+            offline = False
+            print_message("Internet connection is available again.")
+            
         if status_code == 1:
             telegram_bot_send_text(device.name + ": Device is online again!", device.users)
         elif status_code == 2:
