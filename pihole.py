@@ -101,4 +101,6 @@ class PiHole:
                     return self.get_status()
         except AttributeError:  # sometimes triggered, when answer is empty
             pass
+        except ValueError:
+            pass
         return 0
