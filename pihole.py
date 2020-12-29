@@ -7,7 +7,7 @@ class PiHole:
     A Pi-hole object containing the IP-address, pretty name and other relevant information.
     """
 
-    def __init__(self, ip: str, name: str, users: list, max_retries: int = 1, request_timeout: int = 3,
+    def __init__(self, ip: str, name: str, users: list, max_retries: int = 3, request_timeout: int = 5,
                  retry_time: int = 15, connection_check_server: str = "https://1.1.1.1/",
                  connection_secure: bool = True):
         """
@@ -81,7 +81,11 @@ class PiHole:
                     time.sleep(self.retry_time)
                     return self.get_status()
         except KeyError:
-            if r.json()["FTLnotrunning"] and self.online:  # FTL is not running
+            try:
+                ftl_not_running = r.json()["FTLnotrunning"]
+            except KeyError:
+                ftl_not_running = False
+            if ftl_not_running and self.online:  # FTL is not running
                 if self.retry_number >= self.max_retries:
                     self.online = False
                     self.retry_number = 0
